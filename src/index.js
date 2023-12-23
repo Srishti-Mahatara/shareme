@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom/";
 import Mobile from "./routes/mobile/Mobile";
 import "./config/firebase";
 import Register from "./routes/register/Register";
+import Home from "./routes/home/Home";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
@@ -19,6 +20,7 @@ root.render(
           <Route path="/" element={<Start />} />
           <Route path="/mobile" element={<Mobile />} />
           <Route path="/register/:mobile" element={<Register />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
       </BrowserRouter>
     </React.StrictMode>
