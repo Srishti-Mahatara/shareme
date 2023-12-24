@@ -43,8 +43,8 @@ export default function Mobile() {
       .catch((error) => {
         // Error; SMS not sent
         // ...
-        console.log(error);
-        toast.error("invalid mobile number");
+        // console.log(error);
+        toast.error(error);
       })
       .finally(() => {
         setLoading(false);

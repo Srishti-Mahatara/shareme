@@ -241,40 +241,40 @@ export default function Home() {
         </button>
       </div>
 
+      <div className="w-full flex overflow-x-scroll overflow-y-hidden h-12">
+        {categories.map((category) => (
+          <div
+            onClick={() => setSelected(category)}
+            className={`p-3 w-full ${
+              category === selected && "bg-black text-white rounded-3xl px-5"
+            }`}
+          >
+            {category}
+          </div>
+        ))}
+      </div>
       {loading ? (
         <Loading />
       ) : (
-        <div className="w-full flex overflow-x-scroll overflow-y-hidden h-12">
-          {categories.map((category) => (
-            <div
-              onClick={() => setSelected(category)}
-              className={`p-3 w-full ${
-                category === selected && "bg-black text-white rounded-3xl px-5"
-              }`}
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+          {products.map((product) => (
+            <Link
+              to={`/product/${product._id}`}
+              className="bg-white rounded-3xl mt-16 relative h-44 hover:bg-slate-200"
             >
-              {category}
-            </div>
+              <img
+                className="rounded-3xl absolute -top-12 object-cover left-0 right-0 w-40 h-40 overflow-hidden mx-auto"
+                src={product.images[0]}
+                alt={product.title}
+              />
+              <div className="w-full relative h-32  block"></div>
+              <div>
+                <center>{product.title}</center>
+              </div>
+            </Link>
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-        {products.map((product) => (
-          <Link
-            to={`/product/${product._id}`}
-            className="bg-white rounded-3xl mt-16 relative h-44 hover:bg-slate-200"
-          >
-            <img
-              className="rounded-3xl absolute -top-12 object-cover left-0 right-0 w-40 h-40 overflow-hidden mx-auto"
-              src={product.images[0]}
-              alt={product.title}
-            />
-            <div className="w-full relative h-32  block"></div>
-            <div>
-              <center>{product.title}</center>
-            </div>
-          </Link>
-        ))}
-      </div>
       <div class="wrapper">
         {/* <div class="page">Body</div> */}
         <div class="bottom-appbar">

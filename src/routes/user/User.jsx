@@ -235,117 +235,118 @@ export default function UserPage() {
       </div>
       <h3 className="text-3xl font-bold">History</h3>
       <br />
+      <div className="w-full flex overflow-x-scroll overflow-y-hidden h-12">
+        {["Lend Request", "Borrow Request"].map((category) => (
+          <div
+            onClick={() => setSelected(category)}
+            className={`p-3 w-full ${
+              category === selected && "bg-black text-white rounded-3xl px-5"
+            }`}
+          >
+            <center> {category}</center>
+          </div>
+        ))}
+      </div>
+
       {loading ? (
         <Loading />
       ) : (
-        <div className="w-full flex overflow-x-scroll overflow-y-hidden h-12">
-          {["Lend Request", "Borrow Request"].map((category) => (
-            <div
-              onClick={() => setSelected(category)}
-              className={`p-3 w-full ${
-                category === selected && "bg-black text-white rounded-3xl px-5"
-              }`}
-            >
-              <center> {category}</center>
+        <div className="p-5">
+          {requests.map((request) => (
+            <div className="bg-white p-3  rounded-3xl mt-16 relative  ">
+              <div className="flex gap-x-3">
+                <div className="w-24 h-24">
+                  <img
+                    className="rounded-3xl absolute -top-10 left-3  object-cover  w-24 h-24 overflow-hidden mx-auto"
+                    src={request.product.images[0]}
+                    alt={request.title}
+                  />
+                </div>
+                <div className="relative">
+                  <p className="text-left w-32 line-clamp-1 absolute -top-12">
+                    {request.product.title}
+                  </p>
+
+                  <b>
+                    {request.taker.name} ({request.taker.gender})
+                  </b>
+
+                  <p className="text-slate-500 w-32  ">{request.desc}</p>
+                </div>
+              </div>
+              <div>
+                <br />
+                {selected === "Lend Request" && request.status === "" && (
+                  <div className="flex justify-end items-center space-x-3">
+                    <button
+                      onClick={async () => {
+                        setLoading(true);
+                        fetch(`${url}/request/reject/${request._id}`, {
+                          headers: await getHeaders(),
+                        })
+                          .then(async (res) => {
+                            const body = await res.json();
+                            if (res.status !== 200) throw body.message;
+                            loadData();
+                          })
+                          .catch((err) => {
+                            toast.error(err);
+                          })
+                          .finally(() => {
+                            setLoading(false);
+                          });
+                      }}
+                      className="border-2 hover:bg-red-200 border-red-600 rounded-xl px-8 py-1"
+                    >
+                      Reject
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setLoading(true);
+                        fetch(`${url}/request/accept/${request._id}`, {
+                          headers: await getHeaders(),
+                        })
+                          .then(async (res) => {
+                            const body = await res.json();
+                            if (res.status !== 200) throw body.message;
+                            loadData();
+                          })
+                          .catch((err) => {
+                            toast.error(err);
+                          })
+                          .finally(() => {
+                            setLoading(false);
+                          });
+                      }}
+                      className="bg-primary hover:bg-blue-800 text-white rounded-xl px-8 py-1"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <div>
+                    {request.status !== "" && selected === "Lend Request" && (
+                      <p className="text-slate-500">{request.taker.mobile}</p>
+                    )}
+                    {request.status !== "" && selected !== "Lend Request" && (
+                      <p className="text-slate-500">{request.donar.mobile}</p>
+                    )}
+                  </div>
+                  <div>
+                    {request.status === "accepted" && (
+                      <span className="text-green-500">Accepted</span>
+                    )}
+                    {request.status === "rejected" && (
+                      <span className="text-red-500">Rejected</span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       )}
-      <div className="p-5">
-        {requests.map((request) => (
-          <div className="bg-white p-3  rounded-3xl mt-16 relative  ">
-            <div className="flex gap-x-3">
-              <div className="w-24 h-24">
-                <img
-                  className="rounded-3xl absolute -top-10 left-3  object-cover  w-24 h-24 overflow-hidden mx-auto"
-                  src={request.product.images[0]}
-                  alt={request.title}
-                />
-              </div>
-              <div className="relative">
-                <p className="text-left absolute -top-12">
-                  {request.product.title}
-                </p>
-
-                <b>
-                  {request.taker.name} ({request.taker.gender})
-                </b>
-
-                <p className="text-slate-500">{request.desc}</p>
-              </div>
-            </div>
-            <div>
-              <br />
-              {request.status === "" && (
-                <div className="flex justify-end items-center space-x-3">
-                  <button
-                    onClick={async () => {
-                      setLoading(true);
-                      fetch(`${url}/request/reject/${request._id}`, {
-                        headers: await getHeaders(),
-                      })
-                        .then(async (res) => {
-                          const body = await res.json();
-                          if (res.status !== 200) throw body.message;
-                          loadData();
-                        })
-                        .catch((err) => {
-                          toast.error(err);
-                        })
-                        .finally(() => {
-                          setLoading(false);
-                        });
-                    }}
-                    className="border-2 hover:bg-red-200 border-red-600 rounded-xl px-8 py-1"
-                  >
-                    Reject
-                  </button>
-                  <button
-                    onClick={async () => {
-                      setLoading(true);
-                      fetch(`${url}/request/accept/${request._id}`, {
-                        headers: await getHeaders(),
-                      })
-                        .then(async (res) => {
-                          const body = await res.json();
-                          if (res.status !== 200) throw body.message;
-                          loadData();
-                        })
-                        .catch((err) => {
-                          toast.error(err);
-                        })
-                        .finally(() => {
-                          setLoading(false);
-                        });
-                    }}
-                    className="bg-primary hover:bg-blue-800 text-white rounded-xl px-8 py-1"
-                  >
-                    Accept
-                  </button>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <div>
-                  {request.status !== "" && selected === "Lend Request" && (
-                    <p className="text-slate-500">{request.taker.mobile}</p>
-                  )}
-                  {request.status !== "" && selected !== "Lend Request" && (
-                    <p className="text-slate-500">{request.donar.mobile}</p>
-                  )}
-                </div>
-                <div>
-                  {request.status === "accepted" && (
-                    <span className="text-green-500">Accepted</span>
-                  )}
-                  {request.status === "rejected" && (
-                    <span className="text-red-500">Rejected</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
       <br />
       <br />
       <div class="wrapper">
