@@ -1,7 +1,16 @@
 import "./Start.css";
 import { ArrowRight } from "iconsax-react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
 function Start() {
+  useEffect(() => {
+    async function checkLogin() {
+      const isLoggined = localStorage.getItem("loggined");
+      if (isLoggined) window.location = "/home";
+    }
+    checkLogin();
+  }, []);
   return (
     <>
       <div className="body">

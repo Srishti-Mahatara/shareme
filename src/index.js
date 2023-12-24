@@ -11,6 +11,8 @@ import Mobile from "./routes/mobile/Mobile";
 import "./config/firebase";
 import Register from "./routes/register/Register";
 import Home from "./routes/home/Home";
+import Product from "./routes/product/Product";
+import UserPage from "./routes/user/User";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
@@ -21,6 +23,8 @@ root.render(
           <Route path="/mobile" element={<Mobile />} />
           <Route path="/register/:mobile" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/user" element={<UserPage />} />
+          <Route path="/product/:id" element={<Product />} />
         </Routes>
       </BrowserRouter>
     </React.StrictMode>

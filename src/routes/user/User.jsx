@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import "./Home.css";
+import "./User.css";
 import { Add, CloseCircle, Home2, SearchNormal, User } from "iconsax-react";
 import { toast } from "react-toastify";
 import Loading from "../../components/loading";
 import { getHeaders, url } from "../../config/constant";
 import { Link } from "react-router-dom";
 
-export default function Home() {
-  const [selected, setSelected] = useState("AllCategories");
+export default function UserPage() {
+  const [selected, setSelected] = useState("Lend Request");
   const [selectedCategory, setSelectedCategory] = useState("AllCategories");
   const categories = [
     "AllCategories",
@@ -17,14 +17,13 @@ export default function Home() {
     "Business",
   ];
   const [dialog, setDialog] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [image, setImage] = useState("");
   const [selectedFile, setSelectedFile] = useState();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function uploadFile() {
@@ -59,21 +58,28 @@ export default function Home() {
     }
     uploadFile();
   }, [selectedFile]);
-  useEffect(() => {
+  async function loadData() {
     setLoading(true);
+    const header = await await getHeaders();
     fetch(
-      `${url}/product/?search=${search}&category=${
-        selected === "AllCategories" ? "" : selected
-      }`
+      `${url}/request/${
+        selected === "Lend Request" ? "donations" : "requests"
+      }`,
+      {
+        headers: header,
+      }
     )
       .then(async (res) => {
         const body = await res.json();
         if (res.status !== 200) return toast.error(body.message);
-        setProducts([...body]);
+        setRequests([...body]);
       })
       .catch((e) => toast.error(e))
       .finally(() => setLoading(false));
-  }, [search, selected]);
+  }
+  useEffect(() => {
+    loadData();
+  }, [selected]);
   return (
     <div className="p-5">
       <div
@@ -227,60 +233,127 @@ export default function Home() {
         <br />
         <br />
       </div>
-      <h3 className="text-3xl font-bold">Products</h3>
-      <div className="p-5 gap-2 flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search Product"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="bg-white rounded-2xl p-3 w-full"
-        />
-        <button className="bg-primary rounded-2xl p-3">
-          <SearchNormal variant="Bold" color="white" />
-        </button>
-      </div>
-
+      <h3 className="text-3xl font-bold">History</h3>
+      <br />
       {loading ? (
         <Loading />
       ) : (
         <div className="w-full flex overflow-x-scroll overflow-y-hidden h-12">
-          {categories.map((category) => (
+          {["Lend Request", "Borrow Request"].map((category) => (
             <div
               onClick={() => setSelected(category)}
               className={`p-3 w-full ${
                 category === selected && "bg-black text-white rounded-3xl px-5"
               }`}
             >
-              {category}
+              <center> {category}</center>
             </div>
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-        {products.map((product) => (
-          <Link
-            to={`/product/${product._id}`}
-            className="bg-white rounded-3xl mt-16 relative h-44 hover:bg-slate-200"
-          >
-            <img
-              className="rounded-3xl absolute -top-12 object-cover left-0 right-0 w-40 h-40 overflow-hidden mx-auto"
-              src={product.images[0]}
-              alt={product.title}
-            />
-            <div className="w-full relative h-32  block"></div>
-            <div>
-              <center>{product.title}</center>
+      <div className="p-5">
+        {requests.map((request) => (
+          <div className="bg-white p-3  rounded-3xl mt-16 relative  ">
+            <div className="flex gap-x-3">
+              <div className="w-24 h-24">
+                <img
+                  className="rounded-3xl absolute -top-10 left-3  object-cover  w-24 h-24 overflow-hidden mx-auto"
+                  src={request.product.images[0]}
+                  alt={request.title}
+                />
+              </div>
+              <div className="relative">
+                <p className="text-left absolute -top-12">
+                  {request.product.title}
+                </p>
+
+                <b>
+                  {request.taker.name} ({request.taker.gender})
+                </b>
+
+                <p className="text-slate-500">{request.desc}</p>
+              </div>
             </div>
-          </Link>
+            <div>
+              <br />
+              {request.status === "" && (
+                <div className="flex justify-end items-center space-x-3">
+                  <button
+                    onClick={async () => {
+                      setLoading(true);
+                      fetch(`${url}/request/reject/${request._id}`, {
+                        headers: await getHeaders(),
+                      })
+                        .then(async (res) => {
+                          const body = await res.json();
+                          if (res.status !== 200) throw body.message;
+                          loadData();
+                        })
+                        .catch((err) => {
+                          toast.error(err);
+                        })
+                        .finally(() => {
+                          setLoading(false);
+                        });
+                    }}
+                    className="border-2 hover:bg-red-200 border-red-600 rounded-xl px-8 py-1"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={async () => {
+                      setLoading(true);
+                      fetch(`${url}/request/accept/${request._id}`, {
+                        headers: await getHeaders(),
+                      })
+                        .then(async (res) => {
+                          const body = await res.json();
+                          if (res.status !== 200) throw body.message;
+                          loadData();
+                        })
+                        .catch((err) => {
+                          toast.error(err);
+                        })
+                        .finally(() => {
+                          setLoading(false);
+                        });
+                    }}
+                    className="bg-primary hover:bg-blue-800 text-white rounded-xl px-8 py-1"
+                  >
+                    Accept
+                  </button>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <div>
+                  {request.status !== "" && selected === "Lend Request" && (
+                    <p className="text-slate-500">{request.taker.mobile}</p>
+                  )}
+                  {request.status !== "" && selected !== "Lend Request" && (
+                    <p className="text-slate-500">{request.donar.mobile}</p>
+                  )}
+                </div>
+                <div>
+                  {request.status === "accepted" && (
+                    <span className="text-green-500">Accepted</span>
+                  )}
+                  {request.status === "rejected" && (
+                    <span className="text-red-500">Rejected</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
+      <br />
+      <br />
       <div class="wrapper">
         {/* <div class="page">Body</div> */}
         <div class="bottom-appbar">
           <div class="tabs">
             <Link to={"/home"} class="tab is-active tab--left">
-              <Home2 variant="Bold" className="text-primary" />
+              <Home2 variant="Bold" className="text-black" />
             </Link>
             <div class="tab tab--fab">
               <div class="top">
@@ -295,7 +368,7 @@ export default function Home() {
               </div>
             </div>
             <Link to={"/user"} class="tab tab--right">
-              <User variant="Bold" className="text-black" />
+              <User variant="Bold" className="text-primary" />
             </Link>
           </div>
         </div>

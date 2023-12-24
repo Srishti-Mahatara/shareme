@@ -37,6 +37,7 @@ export default function Mobile() {
         setVid(confirmationResult.verificationId);
         console.log("sms sent");
         console.log(confirmationResult);
+        localStorage.setItem("loggined", "true");
         // ...
       })
       .catch((error) => {
